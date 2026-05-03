@@ -70,7 +70,7 @@ export default function MainContainer() {
   const orbColors = ["#1d4ed8", "#9333ea", "#10b981", "#ec4899", "#f59e0b"]; 
 
   return (
-    <div className="w-full h-[100dvh] relative overflow-hidden bg-black text-white">
+    <div className="w-full h-[100svh] relative overflow-hidden bg-black text-white">
       
       {/* Floating Dynamic Glow Orb */}
       <motion.div 
@@ -218,7 +218,7 @@ function PremiumAIText() {
 
 function HeroChapter({ setShowContact }: { setShowContact: (v: boolean) => void }) {
   return (
-    <section className="w-full h-full flex flex-col relative overflow-y-auto can-scroll-y no-scrollbar p-6 md:p-24 justify-start">
+    <section className="w-full h-full flex flex-col relative overflow-y-auto can-scroll-y no-scrollbar p-6 md:p-24 justify-start" style={{ touchAction: 'pan-y' }}>
       <div className="flex-1 flex flex-col justify-start pt-12 md:pt-20 max-w-6xl mx-auto w-full relative z-10 pb-32">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -284,7 +284,7 @@ function HeroChapter({ setShowContact }: { setShowContact: (v: boolean) => void 
 
 function AboutChapter() {
   return (
-    <section className="w-full h-full relative overflow-y-auto can-scroll-y no-scrollbar p-6 md:p-24">
+    <section className="w-full h-full relative overflow-y-auto can-scroll-y no-scrollbar p-6 md:p-24" style={{ touchAction: 'pan-y' }}>
       <div className="max-w-7xl w-full mx-auto flex flex-col md:flex-row gap-16 md:gap-24 relative z-10 min-h-full py-16 md:py-0 md:items-center pb-32">
         <div className="md:w-1/2 flex flex-col justify-center">
           <p className="text-[9px] md:text-[10px] tracking-[0.4em] mb-8 text-white/40 font-bold border-l-2 border-white/40 pl-4">01 / ABOUT</p>
@@ -324,7 +324,7 @@ function AboutChapter() {
 
 function IsRightChapter() {
   return (
-    <section className="w-full h-full relative overflow-y-auto can-scroll-y no-scrollbar p-6 md:p-24">
+    <section className="w-full h-full relative overflow-y-auto can-scroll-y no-scrollbar p-6 md:p-24" style={{ touchAction: 'pan-y' }}>
       <div className="max-w-7xl w-full mx-auto flex flex-col-reverse md:flex-row gap-16 md:gap-24 relative z-10 min-h-full py-16 md:py-0 md:items-center pb-32">
         <div className="md:w-1/2 flex flex-col justify-center">
           <div className="bg-white/[0.02] backdrop-blur-3xl border border-white/10 p-8 md:p-12 rounded-3xl shadow-2xl">
@@ -371,7 +371,7 @@ function IsRightChapter() {
 
 function ProcessChapter() {
   return (
-    <section className="w-full h-full relative overflow-y-auto can-scroll-y no-scrollbar p-6 md:p-24">
+    <section className="w-full h-full relative overflow-y-auto can-scroll-y no-scrollbar p-6 md:p-24" style={{ touchAction: 'pan-y' }}>
       <div className="max-w-7xl w-full mx-auto flex flex-col justify-center relative z-10 min-h-full py-16 md:py-0 pb-32">
         <p className="text-[9px] md:text-[10px] tracking-[0.4em] mb-12 text-white/40 font-bold border-l-2 border-white/40 pl-4">03 / IMPLEMENTATION PROCESS</p>
         
@@ -435,7 +435,7 @@ function SelectionFAQChapter() {
   ];
 
   return (
-    <section className="w-full h-full relative overflow-y-auto can-scroll-y no-scrollbar p-6 md:p-24">
+    <section className="w-full h-full relative overflow-y-auto can-scroll-y no-scrollbar p-6 md:p-24" style={{ touchAction: 'pan-y' }}>
       <div className="max-w-7xl w-full mx-auto flex flex-col md:flex-row gap-12 md:gap-24 relative z-10 min-h-full py-16 md:py-0 pb-32">
         <div className="md:w-1/2 flex flex-col justify-center">
           <p className="text-[9px] md:text-[10px] tracking-[0.4em] mb-8 text-white/40 font-bold border-l-2 border-white/40 pl-4">04 / SELECTION</p>
