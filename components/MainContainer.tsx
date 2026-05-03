@@ -102,7 +102,7 @@ export default function MainContainer() {
         <div className="w-screen h-full flex-shrink-0"><SelectionFAQChapter /></div>
       </motion.div>
 
-      {/* Progress Indicator & Next Button */}
+      {/* Progress Indicator */}
       <div className="fixed bottom-6 right-6 md:bottom-8 md:right-8 flex items-center gap-4 md:gap-6 z-40 pointer-events-none">
         <div className="w-32 md:w-64 h-[1px] bg-white/10 relative overflow-hidden hidden md:block">
           <motion.div 
@@ -110,24 +110,6 @@ export default function MainContainer() {
             animate={{ width: `${slideProgress}%` }}
             transition={{ type: "spring", stiffness: 60, damping: 20 }}
           />
-        </div>
-        <div className="flex gap-2 pointer-events-auto">
-          {activeIndex > 0 && (
-            <button 
-              onClick={() => setActiveIndex(prev => prev - 1)}
-              className="flex items-center justify-center w-12 h-12 md:w-10 md:h-10 border border-white/20 bg-black/50 backdrop-blur-xl hover:bg-white/10 transition-colors rounded-full rotate-180 shadow-lg"
-            >
-              <ChevronRight size={16} />
-            </button>
-          )}
-          {activeIndex < 4 && (
-            <button 
-              onClick={() => setActiveIndex(prev => prev + 1)}
-              className="flex items-center gap-3 px-6 h-12 md:h-10 border border-white/20 bg-black/50 backdrop-blur-xl hover:bg-white/10 transition-colors rounded-full text-[10px] font-bold uppercase tracking-[0.2em] shadow-lg"
-            >
-              NEXT <ChevronRight size={14} />
-            </button>
-          )}
         </div>
       </div>
 
