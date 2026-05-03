@@ -13,9 +13,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className="antialiased font-sans bg-background text-foreground overflow-hidden overscroll-none">
+      <body className="antialiased font-sans bg-background text-foreground">
         <div className="bg-noise fixed pointer-events-none"></div>
-        <div className="flex h-screen w-screen overflow-hidden bg-black text-white">
+        <div className="flex h-[100dvh] w-screen overflow-hidden bg-black text-white">
           
           {/* Left Channel */}
           <aside className="hidden md:flex w-[60px] h-full border-r border-white/10 flex-col items-center justify-end pb-12 shrink-0 z-50 bg-black">
