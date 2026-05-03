@@ -7,6 +7,7 @@ import { ChevronRight, ChevronDown, MoveRight, X } from "lucide-react";
 export default function MainContainer() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [showContact, setShowContact] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
 
   useEffect(() => {
     let isScrolling = false;
@@ -16,8 +17,10 @@ export default function MainContainer() {
       const scrollableParent = target.closest('.can-scroll-y');
       
       if (scrollableParent && scrollableParent.scrollHeight > scrollableParent.clientHeight) {
-        const isAtTop = scrollableParent.scrollTop === 0;
-        const isAtBottom = scrollableParent.scrollHeight - scrollableParent.scrollTop <= scrollableParent.clientHeight + 1;
+        const isAtTop = scrollableParent.scrollTop <= 1;
+        const isAtBottom = scrollableParent.scrollHeight - scrollableParent.scrollTop <= scrollableParent.clientHeight + 2;
+        
+        // If they are scrolling vertically and NOT at the absolute boundaries, let them scroll naturally
         if (!(isAtTop && e.deltaY < 0) && !(isAtBottom && e.deltaY > 0)) {
           return; 
         }
@@ -38,7 +41,7 @@ export default function MainContainer() {
           setActiveIndex(prev => Math.max(prev - 1, 0));
         }
         
-        setTimeout(() => { isScrolling = false; }, 1000); 
+        setTimeout(() => { isScrolling = false; }, 800); 
       }
     };
 
@@ -46,15 +49,32 @@ export default function MainContainer() {
     return () => window.removeEventListener("wheel", handleWheel);
   }, []);
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStart) return;
+    const touchEnd = e.changedTouches[0].clientX;
+    const distance = touchStart - touchEnd;
+    
+    if (distance > 50) {
+      setActiveIndex(prev => Math.min(prev + 1, 4));
+    } else if (distance < -50) {
+      setActiveIndex(prev => Math.max(prev - 1, 0));
+    }
+    setTouchStart(null);
+  };
+
   const slideProgress = (activeIndex / 4) * 100;
-  const orbColors = ["#1d4ed8", "#9333ea", "#10b981", "#ec4899", "#f59e0b"]; // blue, purple, emerald, pink, amber
+  const orbColors = ["#1d4ed8", "#9333ea", "#10b981", "#ec4899", "#f59e0b"]; 
 
   return (
     <div className="w-full h-[100dvh] relative overflow-hidden bg-black text-white">
       
       {/* Floating Dynamic Glow Orb */}
       <motion.div 
-        className="fixed top-1/2 left-1/2 w-[60vw] h-[60vh] rounded-full z-0 pointer-events-none blur-[140px] opacity-30"
+        className="fixed top-1/2 left-1/2 w-[80vw] h-[80vh] md:w-[60vw] md:h-[60vh] rounded-full z-0 pointer-events-none blur-[100px] md:blur-[140px] opacity-30 md:opacity-40"
         animate={{ 
           backgroundColor: orbColors[activeIndex],
           x: ["-50%", "-40%", "-60%", "-50%"],
@@ -72,6 +92,8 @@ export default function MainContainer() {
         className="w-[500vw] h-full flex z-10 relative"
         animate={{ x: `-${activeIndex * 100}vw` }}
         transition={{ type: "spring", stiffness: 50, damping: 20, mass: 0.8 }}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
       >
         <div className="w-screen h-full flex-shrink-0"><HeroChapter setShowContact={setShowContact} /></div>
         <div className="w-screen h-full flex-shrink-0"><AboutChapter /></div>
@@ -81,19 +103,19 @@ export default function MainContainer() {
       </motion.div>
 
       {/* Progress Indicator & Next Button */}
-      <div className="absolute bottom-8 right-8 flex items-center gap-6 z-40">
-        <div className="w-48 md:w-64 h-[1px] bg-white/10 relative overflow-hidden hidden md:block">
+      <div className="fixed bottom-6 right-6 md:bottom-8 md:right-8 flex items-center gap-4 md:gap-6 z-40 pointer-events-none">
+        <div className="w-32 md:w-64 h-[1px] bg-white/10 relative overflow-hidden hidden md:block">
           <motion.div 
             className="absolute top-0 left-0 bottom-0 bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)] origin-left"
             animate={{ width: `${slideProgress}%` }}
             transition={{ type: "spring", stiffness: 60, damping: 20 }}
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 pointer-events-auto">
           {activeIndex > 0 && (
             <button 
               onClick={() => setActiveIndex(prev => prev - 1)}
-              className="flex items-center justify-center w-10 h-10 border border-white/20 bg-black/50 backdrop-blur hover:bg-white/10 transition-colors rounded-full rotate-180"
+              className="flex items-center justify-center w-12 h-12 md:w-10 md:h-10 border border-white/20 bg-black/50 backdrop-blur-xl hover:bg-white/10 transition-colors rounded-full rotate-180 shadow-lg"
             >
               <ChevronRight size={16} />
             </button>
@@ -101,7 +123,7 @@ export default function MainContainer() {
           {activeIndex < 4 && (
             <button 
               onClick={() => setActiveIndex(prev => prev + 1)}
-              className="flex items-center gap-3 px-6 h-10 border border-white/20 bg-black/50 backdrop-blur hover:bg-white/10 transition-colors rounded-full text-[10px] font-bold uppercase tracking-[0.2em]"
+              className="flex items-center gap-3 px-6 h-12 md:h-10 border border-white/20 bg-black/50 backdrop-blur-xl hover:bg-white/10 transition-colors rounded-full text-[10px] font-bold uppercase tracking-[0.2em] shadow-lg"
             >
               NEXT <ChevronRight size={14} />
             </button>
@@ -182,10 +204,8 @@ function PremiumAIText() {
 
   return (
     <span className="relative inline-block ml-1 group">
-      {/* Intense Back-Glow */}
       <span className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-emerald-500 blur-[40px] opacity-50 group-hover:opacity-100 transition-opacity duration-1000"></span>
       
-      {/* Chromatic Aberration Layers (Cyan & Magenta) */}
       <motion.span 
         className="absolute top-0 left-0 text-cyan-400 mix-blend-screen pointer-events-none opacity-50 blur-[1px]"
         animate={{ x: [-2, 2, -1, 1, 0], y: [1, -1, 0, 1, 0] }}
@@ -201,12 +221,10 @@ function PremiumAIText() {
         {text}
       </motion.span>
 
-      {/* Main Shimmering Text */}
       <span className="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-100 to-white animate-shimmer pr-2">
         {text}
       </span>
       
-      {/* Blinking Terminal Cursor */}
       <motion.span 
         className="absolute -right-4 bottom-2 w-5 h-1.5 bg-white/80"
         animate={{ opacity: [1, 0, 1] }}
@@ -218,10 +236,8 @@ function PremiumAIText() {
 
 function HeroChapter({ setShowContact }: { setShowContact: (v: boolean) => void }) {
   return (
-    <section className="w-full h-full flex flex-col relative overflow-hidden px-6 md:px-24 py-12 md:py-24 justify-between">
-      
-      {/* Top Main Section */}
-      <div className="flex-1 flex flex-col justify-start pt-12 md:pt-20 max-w-6xl mx-auto w-full relative z-10">
+    <section className="w-full h-full flex flex-col relative overflow-y-auto can-scroll-y no-scrollbar p-6 md:p-24 justify-start">
+      <div className="flex-1 flex flex-col justify-start pt-12 md:pt-20 max-w-6xl mx-auto w-full relative z-10 pb-32">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -261,52 +277,33 @@ function HeroChapter({ setShowContact }: { setShowContact: (v: boolean) => void 
             </button>
           </div>
         </motion.div>
+        
+        {/* Bottom Floating Bar */}
+        <div className="relative z-20 mt-16 w-full max-w-5xl">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+            className="bg-white/[0.03] backdrop-blur-2xl border border-white/10 p-6 md:p-8 rounded-2xl flex flex-col md:flex-row justify-between items-center text-[9px] md:text-[10px] font-bold uppercase tracking-[0.25em] text-center gap-4 md:gap-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+          >
+            <span className="w-full md:w-auto text-white/90">Free 2-day bootcamp</span>
+            <span className="hidden md:block text-white/20 font-light text-xl leading-none">|</span>
+            <span className="md:hidden w-12 h-[1px] bg-white/10"></span>
+            <span className="w-full md:w-auto text-white/90">1-month mentorship</span>
+            <span className="hidden md:block text-white/20 font-light text-xl leading-none">|</span>
+            <span className="md:hidden w-12 h-[1px] bg-white/10"></span>
+            <span className="w-full md:w-auto text-white/90">Open to all sectors</span>
+          </motion.div>
+        </div>
       </div>
-
-      {/* Floating Right Images (Desktop Only) */}
-      <div className="hidden lg:flex absolute right-0 top-0 bottom-0 w-[45%] pointer-events-none items-center justify-end pr-12 opacity-80 mix-blend-lighten">
-         <motion.div 
-           initial={{ opacity: 0, scale: 0.9 }}
-           animate={{ opacity: 1, scale: 1 }}
-           transition={{ duration: 1.5, delay: 0.5 }}
-           className="relative w-full h-[80%] rounded-3xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)]"
-         >
-           <div className="absolute inset-0 bg-gradient-to-tr from-black via-transparent to-black/50 z-10"></div>
-           <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1000&auto=format&fit=crop" className="w-full h-full object-cover grayscale opacity-40 mix-blend-screen" alt="Tech"/>
-           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-[150px] font-black text-white/5 tracking-tighter leading-none mix-blend-overlay">SCALE</span>
-           </div>
-         </motion.div>
-      </div>
-
-      {/* Bottom Floating Bar */}
-      <div className="relative z-20 mt-12 md:mt-0 w-full max-w-5xl mx-auto">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          className="bg-white/[0.03] backdrop-blur-2xl border border-white/10 p-6 md:p-8 rounded-2xl flex flex-col md:flex-row justify-between items-center text-[9px] md:text-[10px] font-bold uppercase tracking-[0.25em] text-center gap-4 md:gap-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
-        >
-          <span className="w-full md:w-auto text-white/90">Free 2-day in-person bootcamp</span>
-          <span className="hidden md:block text-white/20 font-light text-xl leading-none">|</span>
-          <span className="md:hidden w-12 h-[1px] bg-white/10"></span>
-          <span className="w-full md:w-auto text-white/90">1-month mentorship with experts</span>
-          <span className="hidden md:block text-white/20 font-light text-xl leading-none">|</span>
-          <span className="md:hidden w-12 h-[1px] bg-white/10"></span>
-          <span className="w-full md:w-auto text-white/90">Open to all sectors</span>
-        </motion.div>
-      </div>
-      
     </section>
   );
 }
 
 function AboutChapter() {
   return (
-    <section className="w-full h-full flex items-center justify-center p-6 md:p-24 relative overflow-hidden">
-      <div className="max-w-7xl w-full flex flex-col md:flex-row gap-16 md:gap-24 relative z-10">
-        
-        {/* Left Side */}
+    <section className="w-full h-full relative overflow-y-auto can-scroll-y no-scrollbar p-6 md:p-24">
+      <div className="max-w-7xl w-full mx-auto flex flex-col md:flex-row gap-16 md:gap-24 relative z-10 min-h-full py-16 md:py-0 md:items-center pb-32">
         <div className="md:w-1/2 flex flex-col justify-center">
           <p className="text-[9px] md:text-[10px] tracking-[0.4em] mb-8 text-white/40 font-bold border-l-2 border-white/40 pl-4">01 / ABOUT</p>
           <h2 className="text-3xl md:text-5xl lg:text-5xl font-black leading-[1.1] mb-10 uppercase tracking-tighter drop-shadow-xl text-transparent bg-clip-text bg-gradient-to-br from-white to-white/40">
@@ -318,7 +315,6 @@ function AboutChapter() {
           </div>
         </div>
 
-        {/* Right Side: Why it exists */}
         <div className="md:w-1/2 flex flex-col justify-center">
           <div className="bg-white/[0.02] backdrop-blur-3xl border border-white/10 p-8 md:p-12 rounded-3xl shadow-2xl">
             <h3 className="text-lg md:text-xl font-bold uppercase tracking-[0.2em] mb-8 text-white">Why This Program Exists</h3>
@@ -339,7 +335,6 @@ function AboutChapter() {
             </ul>
           </div>
         </div>
-
       </div>
     </section>
   );
@@ -347,10 +342,8 @@ function AboutChapter() {
 
 function IsRightChapter() {
   return (
-    <section className="w-full h-full flex items-center justify-center p-6 md:p-24 relative overflow-hidden">
-      <div className="max-w-7xl w-full flex flex-col-reverse md:flex-row gap-16 md:gap-24 relative z-10">
-        
-        {/* Left Side */}
+    <section className="w-full h-full relative overflow-y-auto can-scroll-y no-scrollbar p-6 md:p-24">
+      <div className="max-w-7xl w-full mx-auto flex flex-col-reverse md:flex-row gap-16 md:gap-24 relative z-10 min-h-full py-16 md:py-0 md:items-center pb-32">
         <div className="md:w-1/2 flex flex-col justify-center">
           <div className="bg-white/[0.02] backdrop-blur-3xl border border-white/10 p-8 md:p-12 rounded-3xl shadow-2xl">
             <h3 className="text-lg md:text-xl font-bold uppercase tracking-[0.2em] mb-8 text-white">What You'll Gain</h3>
@@ -371,7 +364,6 @@ function IsRightChapter() {
           </div>
         </div>
 
-        {/* Right Side */}
         <div className="md:w-1/2 flex flex-col justify-center">
           <p className="text-[9px] md:text-[10px] tracking-[0.4em] mb-8 text-white/40 font-bold border-l-2 border-white/40 pl-4">02 / QUALIFICATIONS</p>
           <h2 className="text-3xl md:text-5xl lg:text-5xl font-black leading-[1.1] mb-10 uppercase tracking-tighter drop-shadow-xl text-transparent bg-clip-text bg-gradient-to-br from-white to-white/40">
@@ -390,7 +382,6 @@ function IsRightChapter() {
             </div>
           </div>
         </div>
-
       </div>
     </section>
   );
@@ -398,13 +389,11 @@ function IsRightChapter() {
 
 function ProcessChapter() {
   return (
-    <section className="w-full h-full flex flex-col justify-center p-6 md:p-24 relative overflow-hidden">
-      <div className="max-w-7xl w-full mx-auto relative z-10 can-scroll-y overflow-y-auto no-scrollbar max-h-full pb-20 md:pb-0">
+    <section className="w-full h-full relative overflow-y-auto can-scroll-y no-scrollbar p-6 md:p-24">
+      <div className="max-w-7xl w-full mx-auto flex flex-col justify-center relative z-10 min-h-full py-16 md:py-0 pb-32">
         <p className="text-[9px] md:text-[10px] tracking-[0.4em] mb-12 text-white/40 font-bold border-l-2 border-white/40 pl-4">03 / IMPLEMENTATION PROCESS</p>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
-          {/* Phase 1 */}
           <div className="bg-white/[0.02] backdrop-blur-xl border border-white/10 p-8 md:p-10 rounded-3xl hover:bg-white/[0.05] hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden">
             <div className="absolute top-0 right-0 p-8 text-[120px] font-black text-white/5 tracking-tighter leading-none group-hover:text-white/10 transition-colors pointer-events-none">1</div>
             <h3 className="text-lg md:text-xl font-bold tracking-[0.2em] mb-3 uppercase text-white/90">2-Day Bootcamp</h3>
@@ -422,7 +411,6 @@ function ProcessChapter() {
             </div>
           </div>
 
-          {/* Phase 2 */}
           <div className="bg-white/[0.02] backdrop-blur-xl border border-white/10 p-8 md:p-10 rounded-3xl hover:bg-white/[0.05] hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden mt-0 md:mt-12">
             <div className="absolute top-0 right-0 p-8 text-[120px] font-black text-white/5 tracking-tighter leading-none group-hover:text-white/10 transition-colors pointer-events-none">2</div>
             <h3 className="text-lg md:text-xl font-bold tracking-[0.2em] mb-3 uppercase text-white/90">1-Month Mentorship</h3>
@@ -437,7 +425,6 @@ function ProcessChapter() {
             </div>
           </div>
 
-          {/* Phase 3 */}
           <div className="bg-gradient-to-br from-white/10 to-white/[0.01] backdrop-blur-xl border border-white/20 p-8 md:p-10 rounded-3xl hover:bg-white/[0.15] hover:-translate-y-2 transition-all duration-500 group relative overflow-hidden mt-0 md:mt-24 shadow-[0_0_50px_rgba(255,255,255,0.05)]">
             <div className="absolute top-0 right-0 p-8 text-[120px] font-black text-white/10 tracking-tighter leading-none group-hover:text-white/20 transition-colors pointer-events-none">3</div>
             <h3 className="text-lg md:text-xl font-bold tracking-[0.2em] mb-3 uppercase text-white">Showcase</h3>
@@ -450,7 +437,6 @@ function ProcessChapter() {
               </ul>
             </div>
           </div>
-
         </div>
       </div>
     </section>
@@ -467,10 +453,8 @@ function SelectionFAQChapter() {
   ];
 
   return (
-    <section className="w-full h-full flex flex-col justify-center p-6 md:p-24 relative overflow-hidden">
-      <div className="max-w-7xl w-full mx-auto flex flex-col md:flex-row gap-12 md:gap-24 relative z-10 can-scroll-y overflow-y-auto no-scrollbar max-h-full pb-20 md:pb-0">
-        
-        {/* Selection */}
+    <section className="w-full h-full relative overflow-y-auto can-scroll-y no-scrollbar p-6 md:p-24">
+      <div className="max-w-7xl w-full mx-auto flex flex-col md:flex-row gap-12 md:gap-24 relative z-10 min-h-full py-16 md:py-0 pb-32">
         <div className="md:w-1/2 flex flex-col justify-center">
           <p className="text-[9px] md:text-[10px] tracking-[0.4em] mb-8 text-white/40 font-bold border-l-2 border-white/40 pl-4">04 / SELECTION</p>
           <h3 className="text-3xl md:text-5xl font-black tracking-tighter mb-8 uppercase drop-shadow-xl">How Startups Are Selected</h3>
@@ -484,7 +468,6 @@ function SelectionFAQChapter() {
           </div>
         </div>
 
-        {/* FAQs */}
         <div className="md:w-1/2 flex flex-col justify-center">
           <h3 className="text-xl md:text-2xl font-bold tracking-[0.2em] mb-8 uppercase text-white/50">FAQs</h3>
           <div className="flex flex-col border-t border-white/20">
@@ -493,7 +476,6 @@ function SelectionFAQChapter() {
             ))}
           </div>
         </div>
-
       </div>
     </section>
   );
