@@ -102,15 +102,36 @@ export default function MainContainer() {
         <div className="w-screen h-full flex-shrink-0"><SelectionFAQChapter /></div>
       </motion.div>
 
-      {/* Progress Indicator */}
-      <div className="fixed bottom-6 right-6 md:bottom-8 md:right-8 flex items-center gap-4 md:gap-6 z-40 pointer-events-none">
-        <div className="w-32 md:w-64 h-[1px] bg-white/10 relative overflow-hidden hidden md:block">
-          <motion.div 
-            className="absolute top-0 left-0 bottom-0 bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)] origin-left"
-            animate={{ width: `${slideProgress}%` }}
-            transition={{ type: "spring", stiffness: 60, damping: 20 }}
-          />
+      {/* Bottom Global Navigation Bar */}
+      <div className="fixed bottom-0 left-0 right-0 md:bottom-8 md:left-1/2 md:-translate-x-1/2 md:right-auto md:w-auto bg-[#050505]/95 backdrop-blur-3xl border-t border-white/10 md:border md:rounded-full z-50 flex items-center justify-between px-6 py-4 md:px-8 md:py-4 shadow-[0_-20px_50px_rgba(0,0,0,0.5)] md:shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+        
+        {/* Slide Indicators */}
+        <div className="flex gap-3 md:gap-4 items-center">
+          {[0, 1, 2, 3, 4].map((idx) => (
+            <button 
+              key={idx}
+              onClick={() => setActiveIndex(idx)}
+              className="group relative flex items-center justify-center p-2 -m-2"
+              aria-label={`Go to slide ${idx + 1}`}
+            >
+              <span className={`block transition-all duration-500 rounded-full ${
+                activeIndex === idx 
+                  ? 'w-6 h-1.5 md:w-8 md:h-1.5 bg-white shadow-[0_0_12px_rgba(255,255,255,0.8)]' 
+                  : 'w-1.5 h-1.5 bg-white/30 group-hover:bg-white/60'
+              }`} />
+            </button>
+          ))}
         </div>
+
+        {/* Action Button */}
+        <a 
+          href="https://docs.google.com/forms/d/e/1FAIpQLScHpOhMzKxRPa5NyxCMXGH_3wfBcFBcIOsQ5PrC3e0b7JMFjg/viewform" 
+          target="_blank" 
+          rel="noreferrer"
+          className="ml-8 md:ml-12 bg-white text-black px-6 py-2.5 md:py-3 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-[0.25em] hover:scale-105 active:scale-95 transition-transform shadow-[0_0_20px_rgba(255,255,255,0.3)] flex-shrink-0"
+        >
+          Apply Now
+        </a>
       </div>
 
       {/* Contact Pop-up Modal */}
